@@ -11,6 +11,7 @@
     *   Channel
     *   Message
 4.  UI components
+    *   Slack component
     *   Sidebar
         *   ListOfChannel
         *   ListOfDirectMessages
