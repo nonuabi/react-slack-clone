@@ -23,3 +23,7 @@ code {
   text-align: center;
   font-size: 25px;
 }
+.user-profile {
+  display: flex;
+  
+}
