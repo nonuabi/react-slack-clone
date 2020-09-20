@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import { Sidebar, MainContainer } from './';
 class Slack extends Component {
   render() {
-    return <div>
-      <Sidebar/>
-      <MainContainer/>
-      </div>;
+    return (
+      <div id="slack">
+        <Sidebar />
+        <MainContainer />
+      </div>
+    );
   }
 }
 
