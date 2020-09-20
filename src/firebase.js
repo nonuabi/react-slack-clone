@@ -1,26 +1,25 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+
 const firebaseConfig = {
-  apiKey: 'AIzaSyDwME4ZGZDupip61PoKbZlSwDvRc0uhMfI',
-  authDomain: 'react-slack-clone-b7083.firebaseapp.com',
-  databaseURL: 'https://react-slack-clone-b7083.firebaseio.com',
-  projectId: 'react-slack-clone-b7083',
-  storageBucket: 'react-slack-clone-b7083.appspot.com',
-  messagingSenderId: '300494109402',
-  appId: '1:300494109402:web:a7713394155b8979adc3e3',
+  apiKey: 'AIzaSyC1AOI-TzBw_0xF5vZpJ4QbTTfL_LJNeAA',
+  authDomain: 'slacky-d1604.firebaseapp.com',
+  databaseURL: 'https://slacky-d1604.firebaseio.com',
+  projectId: 'slacky-d1604',
+  storageBucket: 'slacky-d1604.appspot.com',
+  messagingSenderId: '198405935145',
+  appId: '1:198405935145:web:d9b9129b65a17947e08c38',
 };
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+// Auth stuff
 export const auth = firebase.auth();
-export const firestore = firebase.firestore();
 
+const googleProvider = new firebase.auth.GoogleAuthProvider();
 export const signInWithGoogle = () => {
-  //Initialize google provider
-  const googleProvider = new firebase.auth.GoogleAuthProvider();
-
-  //Ask user to select gmail account in a new window.
   auth.signInWithPopup(googleProvider);
 };
 
@@ -28,39 +27,47 @@ export const signOut = () => {
   auth.signOut();
 };
 
-export const createOrGetUserProfileDocument = async (user) => {
+// Firestore stuff
+export const firestore = firebase.firestore();
+window.firestore = firestore;
+
+export const createOrGetUserProfileDocument = async (user, additionalData) => {
   if (!user) return;
 
+  // check if a the user doc is there in DB with
   const userRef = firestore.doc(`users/${user.uid}`);
-  const snapshop = await userRef.get();
+  const snapshot = await userRef.get();
 
-  if (!snapshop.exists) {
+  // if no user exists in DB @ path 'userRef' then go and make one
+  if (!snapshot.exists) {
     const { displayName, email, photoURL } = user;
 
     const createdAt = new Date();
 
     try {
-      const user = {
-        display_name: displayName,
+      await userRef.set({
+        display_name: displayName || additionalData.displayName,
         email,
-        photo_url: photoURL,
-      };
-      await userRef.set(user);
+        photo_url: photoURL
+          ? photoURL
+          : 'https://ca.slack-edge.com/T0188513NTW-U01867WD8GK-ga631e27835b-72',
+        created_at: createdAt,
+        ...additionalData,
+      });
     } catch (error) {
-      console.log('Error', error.message);
+      console.error('Error creating user', error.message);
     }
   }
-
   return getUserDocument(user.uid);
 };
 
-async function getUserDocument(uid) {
+export const getUserDocument = async (uid) => {
   if (!uid) return null;
 
   try {
-    const userDocument = await firestore.collection('user').doc(uid);
+    const userDocument = await firestore.collection('users').doc(uid);
     return userDocument;
   } catch (error) {
-    console.error('Error in getUserDocument', error.message);
+    console.error('Error fetching user', error.message);
   }
-}
+};
